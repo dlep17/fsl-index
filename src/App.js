@@ -66,7 +66,9 @@ function App() {
         <header className="bg-white dark:bg-gray-800 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex justify-center items-center relative">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">FSL Index</h1>
+              <div className="flex flex-col items-center">
+                <img src="/favicon.ico" alt="FSL Index Logo" className="h-24 w-24 mt-2" />
+              </div>
               <div className="absolute right-0">
                 <ThemeToggle />
               </div>
@@ -104,6 +106,9 @@ function App() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <p className="text-center text-gray-500 dark:text-gray-400 text-sm">
               Data provided by Sleeper API. This is not an official Sleeper product.
+            </p>
+            <p className="text-center text-gray-400 dark:text-gray-500 text-xs mt-2">
+              FSL Index v0.0.5
             </p>
           </div>
         </footer>
