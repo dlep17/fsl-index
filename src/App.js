@@ -67,7 +67,7 @@ function App() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex justify-center items-center relative">
               <div className="flex flex-col items-center">
-                <img src={`${process.env.PUBLIC_URL}/logo.ico`} alt="FSL Index Logo" className="h-24 w-24 mt-2" />
+                <img src={`${process.env.PUBLIC_URL}/favicon.ico`} alt="FSL Index Logo" className="h-24 w-24 mt-2" />
               </div>
               <div className="absolute right-0">
                 <ThemeToggle />
