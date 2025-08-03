@@ -217,7 +217,7 @@ const FSLCup = () => {
         : 'text-green-800 dark:text-green-200';
     
     return (
-      <div className={`flex items-center justify-between w-full ${isWinner ? 'font-bold' : 'font-normal'} border-b border-gray-200 dark:border-gray-700 p-2`}>
+      <div className={`flex items-center justify-between w-full ${isWinner ? 'font-bold' : 'font-normal'} p-2`}>
         <div className="flex items-center">
           {!isPlaceholder && teamNumber && (
             <div className={`w-7 h-7 ${bgColorClass} rounded-full flex items-center justify-center mr-2`}>
@@ -285,7 +285,9 @@ const FSLCup = () => {
             {roundName} - Match {index + 1}
           </div>
           <div className="p-2">
-            {renderTeam(match.team1, match.score1, match.winner === match.team1)}
+            <div className="border-b border-gray-200 dark:border-gray-700">
+              {renderTeam(match.team1, match.score1, match.winner === match.team1)}
+            </div>
             {renderTeam(match.team2, match.score2, match.winner === match.team2)}
           </div>
         </div>
@@ -301,7 +303,9 @@ const FSLCup = () => {
             {roundName} - Match {index + 1}
           </div>
           <div className="p-2">
-            {renderTeam(potentialMatch.team1, null, false)}
+            <div className="border-b border-gray-200 dark:border-gray-700">
+              {renderTeam(potentialMatch.team1, null, false)}
+            </div>
             {renderTeam(potentialMatch.team2, null, false)}
           </div>
         </div>
@@ -327,7 +331,7 @@ const FSLCup = () => {
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg p-4 mb-6">
             <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-2">Tournament Status</h3>
             <p className="text-blue-700 dark:text-blue-400">
-              The FSL Cup is currently in the first round. Matches will begin next week.
+              The FSL Cup is currently in the first round.
             </p>
             <div className="mt-3 border-t border-blue-100 dark:border-blue-800 pt-3">
               <p className="text-blue-700 dark:text-blue-400 font-medium">Tournament Teams:</p>
@@ -429,137 +433,97 @@ const FSLCup = () => {
 
                   {/* Round 2 (First Round) */}
                   <div className="absolute left-[200px] top-0 w-[180px]">
-                    <div className="absolute top-[130px] left-0 w-[180px]">
+                    <div className="absolute top-[40px] left-0 w-[180px]">
                       {renderMatchCard(null, 0, "Round 2")}
                     </div>
-                    <div className="absolute top-[310px] left-0 w-[180px]">
+                    <div className="absolute top-[220px] left-0 w-[180px]">
                       {renderMatchCard(null, 1, "Round 2")}
                     </div>
-                    <div className="absolute top-[490px] left-0 w-[180px]">
+                    <div className="absolute top-[400px] left-0 w-[180px]">
                       {renderMatchCard(null, 2, "Round 2")}
                     </div>
-                    <div className="absolute top-[670px] left-0 w-[180px]">
+                    <div className="absolute top-[580px] left-0 w-[180px]">
                       {renderMatchCard(null, 3, "Round 2")}
                     </div>
-                    <div className="absolute top-[850px] left-0 w-[180px]">
+                    <div className="absolute top-[760px] left-0 w-[180px]">
                       {renderMatchCard(null, 4, "Round 2")}
                     </div>
-                    <div className="absolute top-[1030px] left-0 w-[180px]">
+                    <div className="absolute top-[940px] left-0 w-[180px]">
                       {renderMatchCard(null, 5, "Round 2")}
                     </div>
-                    <div className="absolute top-[1210px] left-0 w-[180px]">
+                    <div className="absolute top-[1120px] left-0 w-[180px]">
                       {renderMatchCard(null, 6, "Round 2")}
                     </div>
-                    <div className="absolute top-[1390px] left-0 w-[180px]">
+                    <div className="absolute top-[1300px] left-0 w-[180px]">
                       {renderMatchCard(null, 7, "Round 2")}
                     </div>
                   </div>
 
                   {/* Quarterfinals */}
-                  <div className="absolute left-[400px] top-0 w-[180px]">
-                    <div className="absolute top-[220px] left-0 w-[180px]">
+                  <div className="absolute left-[450px] top-0 w-[180px]">
+                    <div className="absolute top-[130px] left-0 w-[180px]">
                       {renderMatchCard(null, 0, "Quarterfinals")}
                     </div>
-                    <div className="absolute top-[580px] left-0 w-[180px]">
+                    <div className="absolute top-[490px] left-0 w-[180px]">
                       {renderMatchCard(null, 1, "Quarterfinals")}
                     </div>
-                    <div className="absolute top-[940px] left-0 w-[180px]">
+                    <div className="absolute top-[850px] left-0 w-[180px]">
                       {renderMatchCard(null, 2, "Quarterfinals")}
                     </div>
-                    <div className="absolute top-[1300px] left-0 w-[180px]">
+                    <div className="absolute top-[1210px] left-0 w-[180px]">
                       {renderMatchCard(null, 3, "Quarterfinals")}
                     </div>
                   </div>
 
                   {/* Semifinals */}
-                  <div className="absolute left-[600px] top-0 w-[180px]">
-                    <div className="absolute top-[400px] left-0 w-[180px]">
+                  <div className="absolute left-[700px] top-0 w-[180px]">
+                    <div className="absolute top-[310px] left-0 w-[180px]">
                       {renderMatchCard(null, 0, "Semifinals")}
                     </div>
-                    <div className="absolute top-[1120px] left-0 w-[180px]">
+                    <div className="absolute top-[1030px] left-0 w-[180px]">
                       {renderMatchCard(null, 1, "Semifinals")}
                     </div>
                   </div>
 
                   {/* Finals */}
-                  <div className="absolute left-[800px] top-0 w-[180px]">
-                    <div className="absolute top-[760px] left-0 w-[180px]">
+                  <div className="absolute left-[950px] top-0 w-[180px]">
+                    <div className="absolute top-[670px] left-0 w-[180px]">
                       {renderMatchCard(null, 0, "Final")}
                     </div>
                   </div>
 
-                  {/* Champion */}
-                  <div className="absolute left-[1000px] top-[745px] w-[180px]">
-                    <div className="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden p-4 text-center shadow-md">
-                      <div className="font-semibold text-lg text-gray-800 dark:text-gray-300 mb-3">Champion</div>
-                      <div className="flex flex-col items-center">
-                        <div className="w-14 h-14 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-2 border border-gray-300 dark:border-gray-600">
-                          <span className="text-xl font-bold text-gray-400 dark:text-gray-500">?</span>
-                        </div>
-                        <span className="font-medium text-lg text-gray-500 dark:text-gray-400">To Be Determined</span>
-                      </div>
-                    </div>
-                  </div>
 
                   {/* Connector Lines */}
-                  <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ height: '1600px', width: '1100px' }}>
-                    {/* Round 1 to Round 2 - Direct connections between each match and the next round */}
-                    {/* Team 16 vs 17 → Team 1 vs R1 16/17 */}
-                    <path d="M180,65 H190 V155 H200" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    
-                    {/* Team 15 vs 18 → Team 2 vs R1 15/18 */}
-                    <path d="M180,245 H190 V335 H200" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    
-                    {/* Team 11 vs 22 → Team 3 vs R1 11/22 */}
-                    <path d="M180,425 H190 V515 H200" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    
-                    {/* Team 13 vs 20 → Team 4 vs R1 13/20 */}
-                    <path d="M180,605 H190 V695 H200" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    
-                    {/* Team 14 vs 19 → Team 5 vs R1 14/19 */}
-                    <path d="M180,785 H190 V875 H200" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    
-                    {/* Team 12 vs 21 → Team 6 vs R1 12/21 */}
-                    <path d="M180,965 H190 V1055 H200" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    
-                    {/* Team 10 vs 23 → Team 7 vs R1 10/23 */}
-                    <path d="M180,1145 H190 V1235 H200" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    
-                    {/* Team 9 vs 24 → Team 8 vs R1 9/24 */}
-                    <path d="M180,1325 H190 V1415 H200" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                  <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ height: '1600px', width: '1000px' }}>
+                    {/* Round 1 to Round 2 */}
+                    <path d="M180,127 L200,127" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M180,307 L200,307" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M180,487 L200,487" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M180,667 L200,667" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M180,847 L200,847" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M180,1027 L200,1027" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M180,1207 L200,1207" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M180,1387 L200,1387" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
                     
                     {/* Round 2 to Quarterfinals */}
-                    {/* Pair 1-2 */}
-                    <path d="M380,155 H390 V270 H400" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    <path d="M380,335 H390 V270 H400" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    
-                    {/* Pair 3-4 */}
-                    <path d="M380,515 H390 V630 H400" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    <path d="M380,695 H390 V630 H400" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    
-                    {/* Pair 5-6 */}
-                    <path d="M380,875 H390 V990 H400" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    <path d="M380,1055 H390 V990 H400" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    
-                    {/* Pair 7-8 */}
-                    <path d="M380,1235 H390 V1350 H400" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    <path d="M380,1415 H390 V1350 H400" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M380,130 L430,130 L430,210 L450,210" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M380,310 L430,310 L430,210 L450,210" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M380,490 L430,490 L430,570 L450,570" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M380,670 L430,670 L430,570 L450,570" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M380,850 L430,850 L430,930 L450,930" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M380,1030 L430,1030 L430,930 L450,930" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M380,1210 L430,1210 L430,1290 L450,1290" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M380,1390 L430,1390 L430,1290 L450,1290" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
                     
                     {/* Quarterfinals to Semifinals */}
-                    {/* Pair 1-2 */}
-                    <path d="M580,245 H590 V450 H600" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    <path d="M580,605 H590 V450 H600" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    
-                    {/* Pair 3-4 */}
-                    <path d="M580,965 H590 V1170 H600" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    <path d="M580,1325 H590 V1170 H600" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M630,220 L675,220 L675,390 L700,390" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M630,580 L675,580 L675,390 L700,390" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M630,940 L675,940 L675,1110 L700,1110" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M630,1300 L675,1300 L675,1110 L700,1110" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
                     
                     {/* Semifinals to Final */}
-                    <path d="M780,425 H790 V810 H800" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    <path d="M780,1145 H790 V810 H800" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
-                    
-                    {/* Final to Champion */}
-                    <path d="M980,785 H1000" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M880,390 L930,390 L930,750 L950,750" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
+                    <path d="M880,1110 L930,1110 L930,750 L950,750" stroke="#ccc" strokeWidth="2" fill="none" className="dark:stroke-gray-600" />
                   </svg>
                 </div>
               </div>
