@@ -393,12 +393,11 @@ const FSLCup = () => {
               <div className="min-w-[1200px] p-6 relative" style={{ height: "1800px" }}>
                 {/* Column Headers */}
                 <div className="flex mb-6">
-                  <div className="w-[200px] text-center font-semibold text-gray-800 dark:text-gray-200 text-lg">Round 1</div>
-                  <div className="w-[200px] text-center font-semibold text-gray-800 dark:text-gray-200 text-lg">Round 2</div>
-                  <div className="w-[200px] text-center font-semibold text-gray-800 dark:text-gray-200 text-lg">Quarterfinals</div>
-                  <div className="w-[200px] text-center font-semibold text-gray-800 dark:text-gray-200 text-lg">Semifinals</div>
-                  <div className="w-[200px] text-center font-semibold text-gray-800 dark:text-gray-200 text-lg">Final</div>
-                  <div className="w-[200px] text-center font-semibold text-gray-800 dark:text-gray-200 text-lg">Champion</div>
+                  <div className="w-[150px] text-center font-semibold text-gray-800 dark:text-gray-200 text-lg">Round 1</div>
+                  <div className="w-[250px] text-center font-semibold text-gray-800 dark:text-gray-200 text-lg">Round 2</div>
+                  <div className="w-[250px] text-center font-semibold text-gray-800 dark:text-gray-200 text-lg">Quarterfinals</div>
+                  <div className="w-[250px] text-center font-semibold text-gray-800 dark:text-gray-200 text-lg">Semifinals</div>
+                  <div className="w-[250px] text-center font-semibold text-gray-800 dark:text-gray-200 text-lg">Final</div>
                 </div>
                 
                 {/* Bracket Structure */}
