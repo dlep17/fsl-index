@@ -1,5 +1,5 @@
-import sleeperApiService from '../services/sleeperApiService.js';
-import { createClient } from '@supabase/supabase-js';
+const sleeperApiService = require('./sleeperApiService');
+const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
