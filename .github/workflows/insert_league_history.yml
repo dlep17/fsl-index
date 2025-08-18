@@ -23,6 +23,6 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          CURRENT_SLEEPER_LEAGUE_ID_DIV1: ${{ secrets.CURRENT_SLEEPER_LEAGUE_ID_DIV1 }}
-          CURRENT_SLEEPER_LEAGUE_ID_DIV2: ${{ secrets.CURRENT_SLEEPER_LEAGUE_ID_DIV2 }}
+          CURRENT_SLEEPER_LEAGUE_ID_DIV1: ${{ vars.CURRENT_SLEEPER_LEAGUE_ID_DIV1 }}
+          CURRENT_SLEEPER_LEAGUE_ID_DIV2: ${{ vars.CURRENT_SLEEPER_LEAGUE_ID_DIV2 }}
         run: node src/scripts/generate-league-history.js

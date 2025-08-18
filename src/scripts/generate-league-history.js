@@ -7,10 +7,22 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const DIV1_LEAGUE_ID = process.env.CURRENT_SLEEPER_LEAGUE_ID_DIV1;
 const DIV2_LEAGUE_ID = process.env.CURRENT_SLEEPER_LEAGUE_ID_DIV2;
 
-if (!supabaseUrl || !supabaseKey || !DIV1_LEAGUE_ID || !DIV2_LEAGUE_ID) {
-    console.error("❌ Missing atleast one environment variables");
+// Check for required environment variables
+const missingVars = [];
+if (!supabaseUrl) missingVars.push('SUPABASE_URL');
+if (!supabaseKey) missingVars.push('SUPABASE_SERVICE_ROLE_KEY');
+if (!DIV1_LEAGUE_ID) missingVars.push('CURRENT_SLEEPER_LEAGUE_ID_DIV1');
+if (!DIV2_LEAGUE_ID) missingVars.push('CURRENT_SLEEPER_LEAGUE_ID_DIV2');
+
+if (missingVars.length > 0) {
+    console.error("❌ Missing environment variables:", missingVars.join(', '));
+    console.error("Please ensure all required environment variables are set.");
     process.exit(1);
 }
+
+console.log("✅ All environment variables are set");
+console.log(`📊 Division 1 League ID: ${DIV1_LEAGUE_ID}`);
+console.log(`📊 Division 2 League ID: ${DIV2_LEAGUE_ID}`);
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
