@@ -8,6 +8,8 @@ const DIV1_LEAGUE_ID = process.env.CURRENT_SLEEPER_LEAGUE_ID_DIV1;
 const DIV2_LEAGUE_ID = process.env.CURRENT_SLEEPER_LEAGUE_ID_DIV2;
 const FSL_CUP_WEEK_START = process.env.CURRENT_SLEEPER_LEAGUE_ID_DIV1;
 const FSL_CUP_WEEK_END = process.env.CURRENT_SLEEPER_LEAGUE_ID_DIV2;
+const DIV1_PREVIOUS_SEASON_LEAGUE_ID = null;
+const DIV2_PREVIOUS_SEASON_LEAGUE_ID = null;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -20,238 +22,55 @@ if (!DIV2_LEAGUE_ID) missingVars.push("CURRENT_SLEEPER_LEAGUE_ID_DIV2");
 if (!FSL_CUP_WEEK_START) missingVars.push("CURRENT_SLEEPER_LEAGUE_ID_DIV1");
 if (!FSL_CUP_WEEK_END) missingVars.push("CURRENT_SLEEPER_LEAGUE_ID_DIV2");
 
-const { data: leagueHistory, error: leagueHistoryError } = await supabase
-  .from("league_history")
-  .select("league_id, previous_season_league_id")
-  .in("league_id", [DIV1_LEAGUE_ID, DIV2_LEAGUE_ID]);
+// Move the await code into an async function
+async function initialize() {
+  const { data: leagueHistory, error: leagueHistoryError } = await supabase
+    .from("league_history")
+    .select("league_id, previous_season_league_id")
+    .in("league_id", [DIV1_LEAGUE_ID, DIV2_LEAGUE_ID]);
 
-if (leagueHistoryError) {
-  console.error("❌ Error retrieving league history:", leagueHistoryError);
-  process.exit(1);
-}
-
-const div1PreviousSeasonLeagueId = leagueHistory.find(
-  (league) => league.league_id === DIV1_LEAGUE_ID
-).previous_season_league_id;
-const div2PreviousSeasonLeagueId = leagueHistory.find(
-  (league) => league.league_id === DIV2_LEAGUE_ID
-).previous_season_league_id;
-
-if (
-  div1PreviousSeasonLeagueId === null ||
-  div2PreviousSeasonLeagueId === null
-) {
-  console.error(
-    "❌ Unable to retrieve previous season league id for either league"
-  );
-  process.exit(1);
-}
-
-if (missingVars.length > 0) {
-  console.error("❌ Missing environment variables:", missingVars.join(", "));
-  console.error("Please ensure all required environment variables are set.");
-  process.exit(1);
-}
-
-console.log("✅ All environment variables are set");
-console.log(`📊 Division 1 League ID: ${DIV1_LEAGUE_ID}`);
-console.log(`📊 Division 2 League ID: ${DIV2_LEAGUE_ID}`);
-console.log(
-  `📊 Division 1 Previous Season League ID: ${div1PreviousSeasonLeagueId}`
-);
-console.log(
-  `📊 Division 2 Previous Season League ID: ${div2PreviousSeasonLeagueId}`
-);
-console.log(`📊 FSL Cup Week Start: ${FSL_CUP_WEEK_START}`);
-console.log(`📊 FSL Cup Week End: ${FSL_CUP_WEEK_END}`);
-
-async function run() {
-  try {
-    console.log("🔄 Starting FSL Cup Weekly Processor...");
-
-    var div1CurrentLeagueInfo = await sleeperApiService.getLeagueInfo(
-      DIV1_LEAGUE_ID
-    );
-    var div2CurrentLeagueInfo = await sleeperApiService.getLeagueInfo(
-      DIV2_LEAGUE_ID
-    );
-
-    const div1CurrentWeek = div1CurrentLeagueInfo.settings.leg;
-    const div2CurrentWeek = div2CurrentLeagueInfo.settings.leg;
-
-    if (div1CurrentWeek === null || div2CurrentWeek === null) {
-      if (div1CurrentWeek !== div2CurrentWeek) {
-        console.error("❌ Current week is not the same for both leagues");
-        process.exit(1);
-      }
-      console.error("❌ No current week found for either league");
-      process.exit(1);
-    }
-
-    const currentWeek = div1CurrentWeek;
-    const currentSeason = div1CurrentLeagueInfo.season;
-
-    if (currentWeek < FSL_CUP_WEEK_START || currentWeek > FSL_CUP_WEEK_END) {
-      console.error(
-        "❌ Current week is not between FSL Cup Week Start and FSL Cup Week End. Exiting..."
-      );
-      process.exit(1);
-    }
-
-    console.log("📊 Getting matchups...");
-    var div1Matchups = [];
-    var div2Matchups = [];
-
-    for (let week = FSL_CUP_WEEK_START; week <= currentWeek; week++) {
-      if (week < FSL_CUP_WEEK_START || week > FSL_CUP_WEEK_END) {
-        console.error(
-          "❌ Week is not between FSL Cup Week Start and FSL Cup Week End. No need to process. Exiting..."
-        );
-        process.exit(1);
-      }
-
-      const div1WeekMatchups = await sleeperApiService.getLeagueMatchups(
-        DIV1_LEAGUE_ID,
-        week
-      );
-      const div2WeekMatchups = await sleeperApiService.getLeagueMatchups(
-        DIV2_LEAGUE_ID,
-        week
-      );
-
-      // Add week field to each matchup
-      div1WeekMatchups.forEach((matchup) => (matchup.week = week));
-      div2WeekMatchups.forEach((matchup) => (matchup.week = week));
-
-      div1Matchups.push(div1WeekMatchups);
-      div2Matchups.push(div2WeekMatchups);
-
-      console.log(
-        `📊 Matchups for week ${week}: ${div1WeekMatchups.length} div1, ${div2WeekMatchups.length} div2`
-      );
-    }
-
-    if (div1Matchups.length === 0 || div2Matchups.length === 0) {
-      console.error("❌ No matchups found for any week");
-      process.exit(1);
-    }
-
-    console.log(`📊 Div1 Matchups: ${div1Matchups}`);
-    console.log(`📊 Div2 Matchups: ${div2Matchups}`);
-
-    console.log("📊 Getting previous season users and teams...");
-    var div1UsersPreviousSeason = await sleeperApiService.getLeagueUsers(
-      div1PreviousSeasonLeagueId
-    );
-    var div2UsersPreviousSeason = await sleeperApiService.getLeagueUsers(
-      div2PreviousSeasonLeagueId
-    );
-
-    if (
-      div1UsersPreviousSeason.length === 0 ||
-      div2UsersPreviousSeason.length === 0
-    ) {
-      console.error("❌ No users found for either league");
-      process.exit(1);
-    }
-
-    var div1RostersPreviousSeason = await sleeperApiService.getLeagueRosters(
-      div1PreviousSeasonLeagueId
-    );
-    var div2RostersPreviousSeason = await sleeperApiService.getLeagueRosters(
-      div2PreviousSeasonLeagueId
-    );
-
-    if (
-      div1RostersPreviousSeason.length === 0 ||
-      div2RostersPreviousSeason.length === 0
-    ) {
-      console.error(
-        "❌ No rosters found for previous season for either league"
-      );
-      process.exit(1);
-    }
-
-    var div1RostersCurrentSeason = await sleeperApiService.getLeagueRosters(
-      DIV1_LEAGUE_ID
-    );
-    var div2RostersCurrentSeason = await sleeperApiService.getLeagueRosters(
-      DIV2_LEAGUE_ID
-    );
-
-    if (
-      div1RostersCurrentSeason.length === 0 ||
-      div2RostersCurrentSeason.length === 0
-    ) {
-      console.error("❌ No rosters found for current season for either league");
-      process.exit(1);
-    }
-
-    var div1TeamsPreviousSeasonProcessed = processTeamData(
-      div1UsersPreviousSeason,
-      div1RostersPreviousSeason,
-      div1RostersCurrentSeason,
-      div1Matchups
-    );
-    var div2TeamsPreviousSeasonProcessed = processTeamData(
-      div2UsersPreviousSeason,
-      div2RostersPreviousSeason,
-      div2RostersCurrentSeason,
-      div2Matchups
-    );
-
-    if (
-      div1TeamsPreviousSeasonProcessed.length === 0 ||
-      div2TeamsPreviousSeasonProcessed.length === 0
-    ) {
-      console.error("❌ No teams found for either league after processing");
-      process.exit(1);
-    }
-
-    console.log(
-      `📊 Div1 Teams Previous Season Processed: ${div1TeamsPreviousSeasonProcessed}`
-    );
-    console.log(
-      `📊 Div2 Teams Previous Season Processed: ${div2TeamsPreviousSeasonProcessed}`
-    );
-
-    // Create team names mapping based on standings
-    const bracketSeeding = createBracketSeeding(
-      div1TeamsPreviousSeasonProcessed,
-      div2TeamsPreviousSeasonProcessed
-    );
-
-    const fslCupBracket = generateBracket(bracketSeeding, currentWeek);
-
-    if (fslCupBracket.length === 0) {
-      console.error("❌ No FSL Cup Bracket found");
-      process.exit(1);
-    }
-
-    console.log(`📊 FSL Cup Bracket: ${fslCupBracket}`);
-
-    const fslCupData = {
-      season: currentSeason,
-      bracket: fslCupBracket,
-      div_1_league_id: DIV1_LEAGUE_ID,
-      div_2_league_id: DIV2_LEAGUE_ID,
-      current_week: currentWeek,
-    };
-
-    // Insert all records in one operation
-    const { data, error } = await supabase.from("fsl_cup").insert(fslCupData);
-
-    if (error) {
-      console.error("❌ Error inserting records:", error);
-      process.exit(1);
-    }
-
-    console.log(`✅ Successfully inserted ${fslCupData.length} records`);
-    console.log("Inserted data:", data);
-  } catch (err) {
-    console.error("❌ Job failed:", err);
+  if (leagueHistoryError) {
+    console.error("❌ Error retrieving league history:", leagueHistoryError);
     process.exit(1);
   }
+
+  const DIV1_PREVIOUS_SEASON_LEAGUE_ID = leagueHistory.find(
+    (league) => league.league_id === DIV1_LEAGUE_ID
+  ).previous_season_league_id;
+  const DIV2_PREVIOUS_SEASON_LEAGUE_ID = leagueHistory.find(
+    (league) => league.league_id === DIV2_LEAGUE_ID
+  ).previous_season_league_id;
+
+  if (
+    DIV1_PREVIOUS_SEASON_LEAGUE_ID === null ||
+    DIV2_PREVIOUS_SEASON_LEAGUE_ID === null
+  ) {
+    console.error(
+      "❌ Unable to retrieve previous season league id for either league"
+    );
+    process.exit(1);
+  }
+
+  if (missingVars.length > 0) {
+    console.error("❌ Missing environment variables:", missingVars.join(", "));
+    console.error("Please ensure all required environment variables are set.");
+    process.exit(1);
+  }
+
+  console.log("✅ All environment variables are set");
+  console.log(`📊 Division 1 League ID: ${DIV1_LEAGUE_ID}`);
+  console.log(`📊 Division 2 League ID: ${DIV2_LEAGUE_ID}`);
+  console.log(
+    `📊 Division 1 Previous Season League ID: ${DIV1_PREVIOUS_SEASON_LEAGUE_ID}`
+  );
+  console.log(
+    `📊 Division 2 Previous Season League ID: ${DIV2_PREVIOUS_SEASON_LEAGUE_ID}`
+  );
+  console.log(`�� FSL Cup Week Start: ${FSL_CUP_WEEK_START}`);
+  console.log(`📊 FSL Cup Week End: ${FSL_CUP_WEEK_END}`);
+
+  // Call the main run function
+  await run();
 }
 
 //TODO: Make this a common function and use it in the LeagueOverview.js and FSLCup.js components
@@ -437,4 +256,197 @@ const getBracketScore = (team, leg1week, leg2week) => {
   );
 };
 
-run();
+async function run() {
+  try {
+    console.log("🔄 Starting FSL Cup Weekly Processor...");
+
+    var div1CurrentLeagueInfo = await sleeperApiService.getLeagueInfo(
+      DIV1_LEAGUE_ID
+    );
+    var div2CurrentLeagueInfo = await sleeperApiService.getLeagueInfo(
+      DIV2_LEAGUE_ID
+    );
+
+    const div1CurrentWeek = div1CurrentLeagueInfo.settings.leg;
+    const div2CurrentWeek = div2CurrentLeagueInfo.settings.leg;
+
+    if (div1CurrentWeek === null || div2CurrentWeek === null) {
+      if (div1CurrentWeek !== div2CurrentWeek) {
+        console.error("❌ Current week is not the same for both leagues");
+        process.exit(1);
+      }
+      console.error("❌ No current week found for either league");
+      process.exit(1);
+    }
+
+    const currentWeek = div1CurrentWeek;
+    const currentSeason = div1CurrentLeagueInfo.season;
+
+    if (currentWeek < FSL_CUP_WEEK_START || currentWeek > FSL_CUP_WEEK_END) {
+      console.error(
+        "❌ Current week is not between FSL Cup Week Start and FSL Cup Week End. Exiting..."
+      );
+      process.exit(1);
+    }
+
+    console.log("📊 Getting matchups...");
+    var div1Matchups = [];
+    var div2Matchups = [];
+
+    for (let week = FSL_CUP_WEEK_START; week <= currentWeek; week++) {
+      if (week < FSL_CUP_WEEK_START || week > FSL_CUP_WEEK_END) {
+        console.error(
+          "❌ Week is not between FSL Cup Week Start and FSL Cup Week End. No need to process. Exiting..."
+        );
+        process.exit(1);
+      }
+
+      const div1WeekMatchups = await sleeperApiService.getLeagueMatchups(
+        DIV1_LEAGUE_ID,
+        week
+      );
+      const div2WeekMatchups = await sleeperApiService.getLeagueMatchups(
+        DIV2_LEAGUE_ID,
+        week
+      );
+
+      // Add week field to each matchup
+      div1WeekMatchups.forEach((matchup) => (matchup.week = week));
+      div2WeekMatchups.forEach((matchup) => (matchup.week = week));
+
+      div1Matchups.push(div1WeekMatchups);
+      div2Matchups.push(div2WeekMatchups);
+
+      console.log(
+        `📊 Matchups for week ${week}: ${div1WeekMatchups.length} div1, ${div2WeekMatchups.length} div2`
+      );
+    }
+
+    if (div1Matchups.length === 0 || div2Matchups.length === 0) {
+      console.error("❌ No matchups found for any week");
+      process.exit(1);
+    }
+
+    console.log(`📊 Div1 Matchups: ${div1Matchups}`);
+    console.log(`📊 Div2 Matchups: ${div2Matchups}`);
+
+    console.log("📊 Getting previous season users and teams...");
+    var div1UsersPreviousSeason = await sleeperApiService.getLeagueUsers(
+      DIV1_PREVIOUS_SEASON_LEAGUE_ID
+    );
+    var div2UsersPreviousSeason = await sleeperApiService.getLeagueUsers(
+      DIV2_PREVIOUS_SEASON_LEAGUE_ID
+    );
+
+    if (
+      div1UsersPreviousSeason.length === 0 ||
+      div2UsersPreviousSeason.length === 0
+    ) {
+      console.error("❌ No users found for either league");
+      process.exit(1);
+    }
+
+    var div1RostersPreviousSeason = await sleeperApiService.getLeagueRosters(
+      DIV1_PREVIOUS_SEASON_LEAGUE_ID
+    );
+    var div2RostersPreviousSeason = await sleeperApiService.getLeagueRosters(
+      DIV2_PREVIOUS_SEASON_LEAGUE_ID
+    );
+
+    if (
+      div1RostersPreviousSeason.length === 0 ||
+      div2RostersPreviousSeason.length === 0
+    ) {
+      console.error(
+        "❌ No rosters found for previous season for either league"
+      );
+      process.exit(1);
+    }
+
+    var div1RostersCurrentSeason = await sleeperApiService.getLeagueRosters(
+      DIV1_LEAGUE_ID
+    );
+    var div2RostersCurrentSeason = await sleeperApiService.getLeagueRosters(
+      DIV2_LEAGUE_ID
+    );
+
+    if (
+      div1RostersCurrentSeason.length === 0 ||
+      div2RostersCurrentSeason.length === 0
+    ) {
+      console.error("❌ No rosters found for current season for either league");
+      process.exit(1);
+    }
+
+    var div1TeamsPreviousSeasonProcessed = processTeamData(
+      div1UsersPreviousSeason,
+      div1RostersPreviousSeason,
+      div1RostersCurrentSeason,
+      div1Matchups
+    );
+    var div2TeamsPreviousSeasonProcessed = processTeamData(
+      div2UsersPreviousSeason,
+      div2RostersPreviousSeason,
+      div2RostersCurrentSeason,
+      div2Matchups
+    );
+
+    if (
+      div1TeamsPreviousSeasonProcessed.length === 0 ||
+      div2TeamsPreviousSeasonProcessed.length === 0
+    ) {
+      console.error("❌ No teams found for either league after processing");
+      process.exit(1);
+    }
+
+    console.log(
+      `📊 Div1 Teams Previous Season Processed: ${div1TeamsPreviousSeasonProcessed}`
+    );
+    console.log(
+      `📊 Div2 Teams Previous Season Processed: ${div2TeamsPreviousSeasonProcessed}`
+    );
+
+    // Create team names mapping based on standings
+    const bracketSeeding = createBracketSeeding(
+      div1TeamsPreviousSeasonProcessed,
+      div2TeamsPreviousSeasonProcessed
+    );
+
+    const fslCupBracket = generateBracket(bracketSeeding, currentWeek);
+
+    if (fslCupBracket.length === 0) {
+      console.error("❌ No FSL Cup Bracket found");
+      process.exit(1);
+    }
+
+    console.log(`📊 FSL Cup Bracket: ${fslCupBracket}`);
+
+    const fslCupData = {
+      season: currentSeason,
+      bracket: fslCupBracket,
+      div_1_league_id: DIV1_LEAGUE_ID,
+      div_2_league_id: DIV2_LEAGUE_ID,
+      current_week: currentWeek,
+    };
+
+    // Insert all records in one operation
+    const { data, error } = await supabase.from("fsl_cup").insert(fslCupData);
+
+    if (error) {
+      console.error("❌ Error inserting records:", error);
+      process.exit(1);
+    }
+
+    console.log(`✅ Successfully inserted ${fslCupData.length} records`);
+    console.log("Inserted data:", data);
+  } catch (err) {
+    console.error("❌ Job failed:", err);
+    process.exit(1);
+  }
+}
+
+// Call initialize to start the script
+initialize().catch((err) => {
+  console.error("❌ Script failed:", err);
+  process.exit(1);
+});
