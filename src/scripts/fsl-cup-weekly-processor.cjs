@@ -1,6 +1,6 @@
-const sleeperApiService = require("./sleeperApiService");
+const sleeperApiService = require("./sleeperApiService.cjs");
 const { createClient } = require("@supabase/supabase-js");
-const { generateBracket } = require("./generate-fsl-cup-bracket");
+const { generateBracket } = require("./generate-fsl-cup-bracket.cjs");
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
