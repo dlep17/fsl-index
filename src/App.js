@@ -6,8 +6,8 @@ import FSLCup from './pages/FSLCup';
 import './App.css';
 
 // Hardcoded league IDs
-const PREMIER_LEAGUE_ID = '1118356697246031872';
-const CHAMPIONSHIP_LEAGUE_ID = '1118361298359787520';
+const PREMIER_LEAGUE_ID = '1257072684567642112';
+const CHAMPIONSHIP_LEAGUE_ID = '1257087265260195840';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('standings');

@@ -39,7 +39,7 @@ const LeagueOverview = ({ leagueId, leagueType, promotionZone = [], relegationZo
         setLeagueInfo(leagueData);
         
         // Process and combine data
-        const processedTeams = processTeamData(leagueData, usersData, rostersData);
+        const processedTeams = processTeamData(usersData, rostersData);
         
         // Process playoff bracket data if available
         if (bracketData) {
@@ -111,10 +111,10 @@ const LeagueOverview = ({ leagueId, leagueType, promotionZone = [], relegationZo
   };
   
   // Process and combine data from different API endpoints
-  const processTeamData = (leagueData, usersData, rostersData) => {
+  const processTeamData = (usersData, rostersData) => {
     const processedTeams = rostersData.map(roster => {
       // Find the user that matches this roster
-      const user = usersData.find(user => user.user_id === roster.owner_id) || {};
+      const user = usersData.find(user => user.user_id === (roster.co_owners.length > 0 ? roster.co_owners[0] : roster.owner_id)) || {};
       
       // Calculate points for and against by properly combining fpts and fpts_decimal values
       const fpts = roster.settings?.fpts || 0;
