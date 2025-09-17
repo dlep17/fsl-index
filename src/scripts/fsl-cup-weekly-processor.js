@@ -89,6 +89,7 @@ async function run() {
     }
 
     const currentWeek = div1CurrentWeek;
+    const currentSeason = div1CurrentLeagueInfo.season;
 
     if (currentWeek < FSL_CUP_WEEK_START || currentWeek > FSL_CUP_WEEK_END) {
       console.error(
@@ -222,7 +223,31 @@ async function run() {
 
     const fslCupBracket = generateBracket(bracketSeeding, currentWeek);
 
+    if (fslCupBracket.length === 0) {
+      console.error("❌ No FSL Cup Bracket found");
+      process.exit(1);
+    }
+
     console.log(`📊 FSL Cup Bracket: ${fslCupBracket}`);
+
+    const fslCupData = {
+      season: currentSeason,
+      bracket: fslCupBracket,
+      div_1_league_id: DIV1_LEAGUE_ID,
+      div_2_league_id: DIV2_LEAGUE_ID,
+      current_week: currentWeek,
+    };
+
+    // Insert all records in one operation
+    const { data, error } = await supabase.from("fsl_cup").insert(fslCupData);
+
+    if (error) {
+      console.error("❌ Error inserting records:", error);
+      process.exit(1);
+    }
+
+    console.log(`✅ Successfully inserted ${fslCupData.length} records`);
+    console.log("Inserted data:", data);
   } catch (err) {
     console.error("❌ Job failed:", err);
     process.exit(1);
