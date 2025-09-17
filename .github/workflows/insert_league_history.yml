@@ -1,7 +1,7 @@
 name: Insert League History
 
 on:
-  workflow_dispatch:   # allow manual run
+  workflow_dispatch: # allow manual run
 
 jobs:
   insert-league-history:
@@ -25,4 +25,4 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           CURRENT_SLEEPER_LEAGUE_ID_DIV1: ${{ vars.CURRENT_SLEEPER_LEAGUE_ID_DIV1 }}
           CURRENT_SLEEPER_LEAGUE_ID_DIV2: ${{ vars.CURRENT_SLEEPER_LEAGUE_ID_DIV2 }}
-        run: node src/scripts/generate-league-history.js
+        run: node src/scripts/generate-league-history.cjs
