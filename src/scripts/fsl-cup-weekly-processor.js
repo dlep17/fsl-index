@@ -1,5 +1,6 @@
 const sleeperApiService = require("./sleeperApiService");
 const { createClient } = require("@supabase/supabase-js");
+const { generateBracket } = require("./generate-fsl-cup-bracket");
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -7,18 +8,6 @@ const DIV1_LEAGUE_ID = process.env.CURRENT_SLEEPER_LEAGUE_ID_DIV1;
 const DIV2_LEAGUE_ID = process.env.CURRENT_SLEEPER_LEAGUE_ID_DIV2;
 const FSL_CUP_WEEK_START = process.env.CURRENT_SLEEPER_LEAGUE_ID_DIV1;
 const FSL_CUP_WEEK_END = process.env.CURRENT_SLEEPER_LEAGUE_ID_DIV2;
-
-//TODO: figure out how to not hardcode these
-const round1Leg1Week = 3;
-const round1Leg2Week = 4;
-const round2Leg1Week = 5;
-const round2Leg2Week = 6;
-const round3Leg1Week = 7;
-const round3Leg2Week = 8;
-const round4Leg1Week = 9;
-const round4Leg2Week = 10;
-const round5Leg1Week = 11;
-const round5Leg2Week = 12;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -231,143 +220,9 @@ async function run() {
       div2TeamsPreviousSeasonProcessed
     );
 
-    const fslCupBracket = {
-      rounds: [
-        {
-          round: 1,
-          matchups: [
-            {
-              matchId: 1,
-              team1: bracketSeeding[9],
-              team2: bracketSeeding[24],
-              team1Score: getBracketScore(
-                bracketSeeding[9],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              team2Score: getBracketScore(
-                bracketSeeding[24],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              winner: null,
-            },
-            {
-              matchId: 2,
-              team1: bracketSeeding[10], //rosterId
-              team2: bracketSeeding[23], //rosterId
-              team1Score: getBracketScore(
-                bracketSeeding[10],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              team2Score: getBracketScore(
-                bracketSeeding[23],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              winner: null,
-            },
-            {
-              matchId: 3,
-              team1: bracketSeeding[11], //rosterId
-              team2: bracketSeeding[22], //rosterId
-              team1Score: getBracketScore(
-                bracketSeeding[11],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              team2Score: getBracketScore(
-                bracketSeeding[22],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              winner: null,
-            },
-            {
-              matchId: 4,
-              team1: bracketSeeding[12], //rosterId
-              team2: bracketSeeding[21], //rosterId
-              team1Score: getBracketScore(
-                bracketSeeding[12],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              team2Score: getBracketScore(
-                bracketSeeding[21],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              winner: null,
-            },
-            {
-              matchId: 5,
-              team1: bracketSeeding[13], //rosterId
-              team2: bracketSeeding[20], //rosterId
-              team1Score: getBracketScore(
-                bracketSeeding[13],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              team2Score: getBracketScore(
-                bracketSeeding[20],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              winner: null,
-            },
-            {
-              matchId: 6,
-              team1: bracketSeeding[14], //rosterId
-              team2: bracketSeeding[19], //rosterId
-              team1Score: getBracketScore(
-                bracketSeeding[14],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              team2Score: getBracketScore(
-                bracketSeeding[19],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              winner: null,
-            },
-            {
-              matchId: 7,
-              team1: bracketSeeding[15], //rosterId
-              team2: bracketSeeding[18], //rosterId
-              team1Score: getBracketScore(
-                bracketSeeding[15],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              team2Score: getBracketScore(
-                bracketSeeding[18],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              winner: null,
-            },
-            {
-              matchId: 8,
-              team1: bracketSeeding[16], //rosterId
-              team2: bracketSeeding[17], //rosterId
-              team1Score: getBracketScore(
-                bracketSeeding[16],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              team2Score: getBracketScore(
-                bracketSeeding[17],
-                round1Leg1Week,
-                round1Leg2Week
-              ),
-              winner: null,
-            },
-          ],
-        },
-      ],
-    };
+    const fslCupBracket = generateBracket(bracketSeeding, currentWeek);
+
+    console.log(`📊 FSL Cup Bracket: ${fslCupBracket}`);
   } catch (err) {
     console.error("❌ Job failed:", err);
     process.exit(1);

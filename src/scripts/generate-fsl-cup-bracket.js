@@ -94,6 +94,9 @@ const generateBracket = (bracketSeeding, currentWeek) => {
   };
 
   bracket.rounds.push(generateRound2(bracket, bracketSeeding, currentWeek));
+  bracket.rounds.push(generateRound3(bracket, bracketSeeding, currentWeek));
+  bracket.rounds.push(generateRound4(bracket, bracketSeeding, currentWeek));
+  bracket.rounds.push(generateRound5(bracket, bracketSeeding, currentWeek));
 
   return bracket;
 };
@@ -173,6 +176,93 @@ const generateRound2 = (bracket, bracketSeeding, currentWeek) => {
         round2Leg2Week,
         currentWeek,
         2
+      ),
+    ],
+  };
+};
+
+const generateRound3 = (bracket, bracketSeeding, currentWeek) => {
+  return {
+    round: 3,
+    matchups: [
+      createMatchup(
+        17,
+        bracket.rounds[1].matchups[0].winner,
+        bracket.rounds[1].matchups[1].winner,
+        round3Leg1Week,
+        round3Leg2Week,
+        currentWeek,
+        3
+      ),
+      createMatchup(
+        18,
+        bracket.rounds[1].matchups[2].winner,
+        bracket.rounds[1].matchups[3].winner,
+        round3Leg1Week,
+        round3Leg2Week,
+        currentWeek,
+        3
+      ),
+      createMatchup(
+        19,
+        bracket.rounds[1].matchups[4].winner,
+        bracket.rounds[1].matchups[5].winner,
+        round3Leg1Week,
+        round3Leg2Week,
+        currentWeek,
+        3
+      ),
+      createMatchup(
+        20,
+        bracket.rounds[1].matchups[6].winner,
+        bracket.rounds[1].matchups[7].winner,
+        round3Leg1Week,
+        round3Leg2Week,
+        currentWeek,
+        3
+      ),
+    ],
+  };
+};
+
+const generateRound4 = (bracket, bracketSeeding, currentWeek) => {
+  return {
+    round: 4,
+    matchups: [
+      createMatchup(
+        21,
+        bracket.rounds[2].matchups[0].winner,
+        bracket.rounds[2].matchups[1].winner,
+        round4Leg1Week,
+        round4Leg2Week,
+        currentWeek,
+        4
+      ),
+      createMatchup(
+        22,
+        bracket.rounds[2].matchups[2].winner,
+        bracket.rounds[2].matchups[3].winner,
+        round4Leg1Week,
+        round4Leg2Week,
+        currentWeek,
+        4
+      ),
+    ],
+  };
+};
+
+const generateRound5 = (bracket, bracketSeeding, currentWeek) => {
+  return {
+    round: 5,
+    matchups: [
+      createMatchup(
+        23,
+        bracket.rounds[3].matchups[0].winner,
+        bracket.rounds[3].matchups[1].winner,
+        round5Leg1Week,
+        round5Leg2Week,
+        currentWeek,
+        5
       ),
     ],
   };
