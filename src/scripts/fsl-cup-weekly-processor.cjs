@@ -24,6 +24,11 @@ if (!FSL_CUP_WEEK_END) missingVars.push("CURRENT_SLEEPER_LEAGUE_ID_DIV2");
 
 // Move the await code into an async function
 async function initialize() {
+  console.log("🔍 Debug - Looking for leagues:", [
+    DIV1_LEAGUE_ID,
+    DIV2_LEAGUE_ID,
+  ]);
+
   const { data: leagueHistory, error: leagueHistoryError } = await supabase
     .from("league_history")
     .select("league_id, previous_season_league_id")
@@ -34,16 +39,40 @@ async function initialize() {
     process.exit(1);
   }
 
-  const DIV1_PREVIOUS_SEASON_LEAGUE_ID = leagueHistory.find(
+  console.log("🔍 Debug - Found league history:", leagueHistory);
+  console.log(" Debug - Number of records found:", leagueHistory?.length || 0);
+
+  if (!leagueHistory || leagueHistory.length === 0) {
+    console.error("❌ No league history found for the provided league IDs");
+    console.error("Expected league IDs:", [DIV1_LEAGUE_ID, DIV2_LEAGUE_ID]);
+    process.exit(1);
+  }
+
+  const div1League = leagueHistory.find(
     (league) => league.league_id === DIV1_LEAGUE_ID
-  ).previous_season_league_id;
-  const DIV2_PREVIOUS_SEASON_LEAGUE_ID = leagueHistory.find(
+  );
+  const div2League = leagueHistory.find(
     (league) => league.league_id === DIV2_LEAGUE_ID
-  ).previous_season_league_id;
+  );
+
+  console.log("🔍 Debug - Div1 league found:", div1League);
+  console.log(" Debug - Div2 league found:", div2League);
+
+  if (!div1League || !div2League) {
+    console.error(
+      "❌ Could not find one or both leagues in league_history table"
+    );
+    console.error("Div1 league found:", !!div1League);
+    console.error("Div2 league found:", !!div2League);
+    process.exit(1);
+  }
+
+  const div1PreviousSeasonLeagueId = div1League.previous_season_league_id;
+  const div2PreviousSeasonLeagueId = div2League.previous_season_league_id;
 
   if (
-    DIV1_PREVIOUS_SEASON_LEAGUE_ID === null ||
-    DIV2_PREVIOUS_SEASON_LEAGUE_ID === null
+    div1PreviousSeasonLeagueId === null ||
+    div2PreviousSeasonLeagueId === null
   ) {
     console.error(
       "❌ Unable to retrieve previous season league id for either league"
@@ -61,12 +90,12 @@ async function initialize() {
   console.log(`📊 Division 1 League ID: ${DIV1_LEAGUE_ID}`);
   console.log(`📊 Division 2 League ID: ${DIV2_LEAGUE_ID}`);
   console.log(
-    `📊 Division 1 Previous Season League ID: ${DIV1_PREVIOUS_SEASON_LEAGUE_ID}`
+    `📊 Division 1 Previous Season League ID: ${div1PreviousSeasonLeagueId}`
   );
   console.log(
-    `📊 Division 2 Previous Season League ID: ${DIV2_PREVIOUS_SEASON_LEAGUE_ID}`
+    `📊 Division 2 Previous Season League ID: ${div2PreviousSeasonLeagueId}`
   );
-  console.log(`�� FSL Cup Week Start: ${FSL_CUP_WEEK_START}`);
+  console.log(` FSL Cup Week Start: ${FSL_CUP_WEEK_START}`);
   console.log(`📊 FSL Cup Week End: ${FSL_CUP_WEEK_END}`);
 
   // Call the main run function
@@ -332,10 +361,10 @@ async function run() {
 
     console.log("📊 Getting previous season users and teams...");
     var div1UsersPreviousSeason = await sleeperApiService.getLeagueUsers(
-      DIV1_PREVIOUS_SEASON_LEAGUE_ID
+      div1PreviousSeasonLeagueId
     );
     var div2UsersPreviousSeason = await sleeperApiService.getLeagueUsers(
-      DIV2_PREVIOUS_SEASON_LEAGUE_ID
+      div2PreviousSeasonLeagueId
     );
 
     if (
@@ -347,10 +376,10 @@ async function run() {
     }
 
     var div1RostersPreviousSeason = await sleeperApiService.getLeagueRosters(
-      DIV1_PREVIOUS_SEASON_LEAGUE_ID
+      div1PreviousSeasonLeagueId
     );
     var div2RostersPreviousSeason = await sleeperApiService.getLeagueRosters(
-      DIV2_PREVIOUS_SEASON_LEAGUE_ID
+      div2PreviousSeasonLeagueId
     );
 
     if (
