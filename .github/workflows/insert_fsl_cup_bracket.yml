@@ -27,4 +27,6 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           CURRENT_SLEEPER_LEAGUE_ID_DIV1: ${{ vars.CURRENT_SLEEPER_LEAGUE_ID_DIV1 }}
           CURRENT_SLEEPER_LEAGUE_ID_DIV2: ${{ vars.CURRENT_SLEEPER_LEAGUE_ID_DIV2 }}
+          FSL_CUP_WEEK_START: ${{ vars.FSL_CUP_WEEK_START }}
+          FSL_CUP_WEEK_END: ${{ vars.FSL_CUP_WEEK_END }}
         run: node src/scripts/fsl-cup-weekly-processor.cjs

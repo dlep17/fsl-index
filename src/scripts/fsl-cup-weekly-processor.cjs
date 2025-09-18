@@ -6,10 +6,10 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const DIV1_LEAGUE_ID = process.env.CURRENT_SLEEPER_LEAGUE_ID_DIV1;
 const DIV2_LEAGUE_ID = process.env.CURRENT_SLEEPER_LEAGUE_ID_DIV2;
-const FSL_CUP_WEEK_START = process.env.CURRENT_SLEEPER_LEAGUE_ID_DIV1;
-const FSL_CUP_WEEK_END = process.env.CURRENT_SLEEPER_LEAGUE_ID_DIV2;
-const DIV1_PREVIOUS_SEASON_LEAGUE_ID = null;
-const DIV2_PREVIOUS_SEASON_LEAGUE_ID = null;
+const FSL_CUP_WEEK_START = process.env.FSL_CUP_WEEK_START;
+const FSL_CUP_WEEK_END = process.env.FSL_CUP_WEEK_END;
+var DIV1_PREVIOUS_SEASON_LEAGUE_ID = null;
+var DIV2_PREVIOUS_SEASON_LEAGUE_ID = null;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -48,27 +48,29 @@ async function initialize() {
     process.exit(1);
   }
 
-  const div1League = leagueHistory.find(
+  const div1LeagueHistory = leagueHistory.find(
     (league) => league.league_id === DIV1_LEAGUE_ID
   );
-  const div2League = leagueHistory.find(
+  const div2LeagueHistory = leagueHistory.find(
     (league) => league.league_id === DIV2_LEAGUE_ID
   );
 
-  console.log("🔍 Debug - Div1 league found:", div1League);
-  console.log(" Debug - Div2 league found:", div2League);
+  console.log("🔍 Debug - Div1 league found:", div1LeagueHistory);
+  console.log(" Debug - Div2 league found:", div2LeagueHistory);
 
-  if (!div1League || !div2League) {
+  if (!div1LeagueHistory || !div2LeagueHistory) {
     console.error(
       "❌ Could not find one or both leagues in league_history table"
     );
-    console.error("Div1 league found:", !!div1League);
-    console.error("Div2 league found:", !!div2League);
+    console.error("Div1 league found:", !!div1LeagueHistory);
+    console.error("Div2 league found:", !!div2LeagueHistory);
     process.exit(1);
   }
 
-  const div1PreviousSeasonLeagueId = div1League.previous_season_league_id;
-  const div2PreviousSeasonLeagueId = div2League.previous_season_league_id;
+  const div1PreviousSeasonLeagueId =
+    div1LeagueHistory.previous_season_league_id;
+  const div2PreviousSeasonLeagueId =
+    div2LeagueHistory.previous_season_league_id;
 
   if (
     div1PreviousSeasonLeagueId === null ||
@@ -95,8 +97,11 @@ async function initialize() {
   console.log(
     `📊 Division 2 Previous Season League ID: ${div2PreviousSeasonLeagueId}`
   );
-  console.log(` FSL Cup Week Start: ${FSL_CUP_WEEK_START}`);
+  console.log(`📊 FSL Cup Week Start: ${FSL_CUP_WEEK_START}`);
   console.log(`📊 FSL Cup Week End: ${FSL_CUP_WEEK_END}`);
+
+  DIV1_PREVIOUS_SEASON_LEAGUE_ID = div1PreviousSeasonLeagueId;
+  DIV2_PREVIOUS_SEASON_LEAGUE_ID = div2PreviousSeasonLeagueId;
 
   // Call the main run function
   await run();
@@ -115,7 +120,9 @@ const processTeamData = (
       previousLeagueUsers.find(
         (user) =>
           user.user_id ===
-          (roster.co_owners.length > 0 ? roster.co_owners[0] : roster.owner_id)
+          ((roster.co_owners ?? []).length > 0
+            ? roster.co_owners[0]
+            : roster.owner_id)
       ) || {};
 
     // Calculate points for and against by properly combining fpts and fpts_decimal values
@@ -142,10 +149,13 @@ const processTeamData = (
     //get current rosterId to get current matchups
     const currentRosterId = currentLeagueRosters.find(
       (currentRoster) =>
-        (currentRoster.co_owners.length > 0
+        ((currentRoster.co_owners ?? []).length > 0
           ? currentRoster.co_owners[0]
           : currentRoster.owner_id) === user.user_id
     )?.roster_id;
+
+    console.log("PROCESSING TEAM DATA");
+    console.log("currentRosterId: ", currentRosterId);
 
     return {
       previousRosterId: roster.roster_id,
@@ -276,15 +286,6 @@ const processBracketTeam = (team) => {
   };
 };
 
-const getBracketScore = (team, leg1week, leg2week) => {
-  return (
-    (team.currentLeagueMatchups.find((matchup) => matchup.week === leg1week) ||
-      0) +
-    (team.currentLeagueMatchups.find((matchup) => matchup.week === leg2week) ||
-      0)
-  );
-};
-
 async function run() {
   try {
     console.log("🔄 Starting FSL Cup Weekly Processor...");
@@ -345,10 +346,6 @@ async function run() {
 
       div1Matchups.push(div1WeekMatchups);
       div2Matchups.push(div2WeekMatchups);
-
-      console.log(
-        `📊 Matchups for week ${week}: ${div1WeekMatchups.length} div1, ${div2WeekMatchups.length} div2`
-      );
     }
 
     if (div1Matchups.length === 0 || div2Matchups.length === 0) {
@@ -356,30 +353,31 @@ async function run() {
       process.exit(1);
     }
 
-    console.log(`📊 Div1 Matchups: ${div1Matchups}`);
-    console.log(`📊 Div2 Matchups: ${div2Matchups}`);
-
     console.log("📊 Getting previous season users and teams...");
     var div1UsersPreviousSeason = await sleeperApiService.getLeagueUsers(
-      div1PreviousSeasonLeagueId
+      DIV1_PREVIOUS_SEASON_LEAGUE_ID
     );
     var div2UsersPreviousSeason = await sleeperApiService.getLeagueUsers(
-      div2PreviousSeasonLeagueId
+      DIV2_PREVIOUS_SEASON_LEAGUE_ID
     );
 
     if (
-      div1UsersPreviousSeason.length === 0 ||
-      div2UsersPreviousSeason.length === 0
+      div1UsersPreviousSeason?.length === 0 ||
+      div2UsersPreviousSeason?.length === 0
     ) {
+      console.log("div1 previous season id: ", DIV1_PREVIOUS_SEASON_LEAGUE_ID);
+      console.log("div2 previous season id: ", DIV2_PREVIOUS_SEASON_LEAGUE_ID);
+      console.log("div1 users previous season: ", div1UsersPreviousSeason);
+      console.log("div2 users previous season: ", div2UsersPreviousSeason);
       console.error("❌ No users found for either league");
       process.exit(1);
     }
 
     var div1RostersPreviousSeason = await sleeperApiService.getLeagueRosters(
-      div1PreviousSeasonLeagueId
+      DIV1_PREVIOUS_SEASON_LEAGUE_ID
     );
     var div2RostersPreviousSeason = await sleeperApiService.getLeagueRosters(
-      div2PreviousSeasonLeagueId
+      DIV2_PREVIOUS_SEASON_LEAGUE_ID
     );
 
     if (
@@ -407,6 +405,8 @@ async function run() {
       process.exit(1);
     }
 
+    console.log("Attempting to process team data...");
+
     var div1TeamsPreviousSeasonProcessed = processTeamData(
       div1UsersPreviousSeason,
       div1RostersPreviousSeason,
@@ -427,13 +427,6 @@ async function run() {
       console.error("❌ No teams found for either league after processing");
       process.exit(1);
     }
-
-    console.log(
-      `📊 Div1 Teams Previous Season Processed: ${div1TeamsPreviousSeasonProcessed}`
-    );
-    console.log(
-      `📊 Div2 Teams Previous Season Processed: ${div2TeamsPreviousSeasonProcessed}`
-    );
 
     // Create team names mapping based on standings
     const bracketSeeding = createBracketSeeding(

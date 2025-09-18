@@ -309,6 +309,7 @@ const determineWinner = (matchup, currentWeek, leg1Week, leg2Week) => {
 };
 
 const getBracketScore = (team, leg1week, leg2week) => {
+  console.log("team: ", team);
   return (
     (team.currentLeagueMatchups.find((matchup) => matchup.week === leg1week)
       .points || 0.0) +
