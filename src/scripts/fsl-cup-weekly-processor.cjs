@@ -109,15 +109,24 @@ async function initialize() {
 
 //TODO: Make this a common function and use it in the LeagueOverview.js and FSLCup.js components
 const processTeamData = (
-  previousLeagueUsers,
-  previousLeagueRosters,
-  currentLeagueRosters,
-  currentLeagueMatchups
+  allUsersPreviousSeason,
+  allRostersPreviousSeason,
+  allRostersCurrentSeason,
+  div1Matchups,
+  div2Matchups
 ) => {
-  const processedTeams = previousLeagueRosters.map((roster) => {
+  const div1TeamsPreviousSeasonProcessed = [];
+  const div2TeamsPreviousSeasonProcessed = [];
+
+  const processTeam = (roster) => {
     // Find the user that matches this roster
+    // TODO: Need to process both leagues at same time as users move inbetween league season by season.
+    // First we will need to simply create a ranking from 1-24 based on the previous season ranking where we include owner_id/co_ownerid if available.
+    // Once we have the ranking, we can then process the teams for the current season based on the owner id and grabbing teh current roster id from the current season.
+    // We will need to joing both rosters from both leagues in order to be able to search without error and handle the teams moving between.
+
     const user =
-      previousLeagueUsers.find(
+      allUsersPreviousSeason.find(
         (user) =>
           user.user_id ===
           ((roster.co_owners ?? []).length > 0
@@ -146,20 +155,35 @@ const processTeamData = (
       }`
     );
 
+    console.log(
+      "***GETTING CURRENT ROSTER ID FOR USER: ",
+      user.user_id,
+      user.display_name
+    );
     //get current rosterId to get current matchups
-    const currentRosterId = currentLeagueRosters.find(
+    const currentRoster = allRostersCurrentSeason.find(
       (currentRoster) =>
         ((currentRoster.co_owners ?? []).length > 0
           ? currentRoster.co_owners[0]
           : currentRoster.owner_id) === user.user_id
-    )?.roster_id;
+    );
 
-    console.log("PROCESSING TEAM DATA");
-    console.log("currentRosterId: ", currentRosterId);
+    const currentRosterId = currentRoster?.roster_id;
 
-    return {
+    const currentLeagueId = currentRoster?.league_id;
+
+    console.log(
+      "***CURRENT ROSTER ID FOR USER: ",
+      user.user_id,
+      user.display_name,
+      currentRosterId
+    );
+
+    const processedTeam = {
       previousRosterId: roster.roster_id,
       currentRosterId: currentRosterId,
+      previousLeagueId: roster.league_id,
+      currentLeagueId: currentLeagueId,
       name: user.display_name || `Team ${roster.roster_id}`,
       owner: user.display_name || "Unknown Owner",
       userId: user.user_id,
@@ -171,21 +195,64 @@ const processTeamData = (
       },
       pointsFor: pointsFor,
       pointsAgainst: pointsAgainst,
-      currentLeagueMatchups: currentLeagueMatchups.find(
-        (matchup) => matchup.roster_id === currentRosterId
-      ),
+      currentLeagueMatchups:
+        currentLeagueId === DIV1_LEAGUE_ID
+          ? div1Matchups.filter(
+              (matchup) => matchup.roster_id === currentRosterId
+            )
+          : div2Matchups.filter(
+              (matchup) => matchup.roster_id === currentRosterId
+            ),
     };
-  });
 
-  // Sort teams by wins, then by points
-  const sortedTeams = processedTeams.sort((a, b) => {
+    if (processedTeam.previousLeagueId === DIV1_PREVIOUS_SEASON_LEAGUE_ID) {
+      div1TeamsPreviousSeasonProcessed.push(processedTeam);
+    } else if (
+      processedTeam.previousLeagueId === DIV2_PREVIOUS_SEASON_LEAGUE_ID
+    ) {
+      div2TeamsPreviousSeasonProcessed.push(processedTeam);
+    }
+  };
+
+  // Process all rosters
+  allRostersPreviousSeason.forEach(processTeam);
+
+  console.log(
+    "DIV 1 TEAMS PREVIOUS SEASON PROCESSED: ",
+    div1TeamsPreviousSeasonProcessed
+  );
+  console.log(
+    "DIV 2 TEAMS PREVIOUS SEASON PROCESSED: ",
+    div2TeamsPreviousSeasonProcessed
+  );
+
+  // Sort teams separately by wins, then by points
+  const sortedDiv1Teams = div1TeamsPreviousSeasonProcessed.sort((a, b) => {
     if (a.record.wins !== b.record.wins) {
       return b.record.wins - a.record.wins;
     }
     return b.pointsFor - a.pointsFor;
   });
 
-  return sortedTeams;
+  const sortedDiv2Teams = div2TeamsPreviousSeasonProcessed.sort((a, b) => {
+    if (a.record.wins !== b.record.wins) {
+      return b.record.wins - a.record.wins;
+    }
+    return b.pointsFor - a.pointsFor;
+  });
+
+  var allProcessedTeamsSorted = [
+    ...sortedDiv1Teams.slice(0, 4),
+    ...sortedDiv2Teams.slice(0, 4),
+    ...sortedDiv1Teams.slice(4, 12),
+    ...sortedDiv2Teams.slice(4, 12),
+  ];
+
+  console.log("ALL PROCESSED TEAMS SORTED: ", allProcessedTeamsSorted);
+
+  // LEFT OFF HERE: currentLeagueMatchups is not being set correctly for the teams. Need to confirm that the teams are being sorted correctly and then set the currentLeagueMatchups correctly.
+
+  return allProcessedTeamsSorted;
 };
 
 const createBracketSeeding = (
@@ -406,33 +473,42 @@ async function run() {
     }
 
     console.log("Attempting to process team data...");
+    console.log("DIV CURRENT LEAGUE ROSTERS: ", div1RostersCurrentSeason);
 
-    var div1TeamsPreviousSeasonProcessed = processTeamData(
-      div1UsersPreviousSeason,
-      div1RostersPreviousSeason,
-      div1RostersCurrentSeason,
-      div1Matchups
-    );
-    var div2TeamsPreviousSeasonProcessed = processTeamData(
-      div2UsersPreviousSeason,
-      div2RostersPreviousSeason,
-      div2RostersCurrentSeason,
+    const allUsersPreviousSeason = [
+      ...div1UsersPreviousSeason,
+      ...div2UsersPreviousSeason,
+    ];
+    const allRostersPreviousSeason = [
+      ...div1RostersPreviousSeason,
+      ...div2RostersPreviousSeason,
+    ];
+    const allRostersCurrentSeason = [
+      ...div1RostersCurrentSeason,
+      ...div2RostersCurrentSeason,
+    ];
+
+    console.log("DIV 1 MATCHUPS: ", div1Matchups);
+
+    var allTeamsPreviousSeasonProcessed = processTeamData(
+      allUsersPreviousSeason,
+      allRostersPreviousSeason,
+      allRostersCurrentSeason,
+      div1Matchups,
       div2Matchups
     );
 
-    if (
-      div1TeamsPreviousSeasonProcessed.length === 0 ||
-      div2TeamsPreviousSeasonProcessed.length === 0
-    ) {
+    if (allTeamsPreviousSeasonProcessed.length === 0) {
       console.error("❌ No teams found for either league after processing");
       process.exit(1);
     }
 
+    // TODO: FIX THIS WITH NEW ALLPROCESSED DATA
     // Create team names mapping based on standings
-    const bracketSeeding = createBracketSeeding(
-      div1TeamsPreviousSeasonProcessed,
-      div2TeamsPreviousSeasonProcessed
-    );
+    // const bracketSeeding = createBracketSeeding(
+    //   div1TeamsPreviousSeasonProcessed,
+    //   div2TeamsPreviousSeasonProcessed
+    // );
 
     const fslCupBracket = generateBracket(bracketSeeding, currentWeek);
 
